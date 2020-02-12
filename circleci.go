@@ -298,7 +298,7 @@ func (c *Client) ListRecentBuilds(limit, offset int) ([]*Build, error) {
 // ListRecentBuildsForProject fetches the list of recent builds for the given repository
 // The status and branch parameters are used to further filter results if non-empty
 // If limit is -1, fetches all builds
-func (c *Client) ListRecentBuildsForProject(vcsType VcsType, account, repo, branch, status string, limit, offset int) ([]*Build, error) {
+func (c *Client) ListRecentBuildsForProject(vcsType VcsType, account string, repo string, branch string, status string, limit int, offset int) ([]*Build, error) {
 	path := fmt.Sprintf("project/%s/%s/%s", vcsType, account, repo)
 	if branch != "" {
 		path = fmt.Sprintf("%s/tree/%s", path, branch)
@@ -325,10 +325,10 @@ func (c *Client) GetBuild(account, repo string, buildNum int) (*Build, error) {
 }
 
 // ListBuildArtifacts fetches the build artifacts for the given build
-func (c *Client) ListBuildArtifacts(account, repo string, buildNum int) ([]*Artifact, error) {
-	artifacts := []*Artifact{}
+func (c *Client) ListBuildArtifacts(vcsType VcsType, account, repo string, buildNum int) ([]*Artifact, error) {
+	var artifacts []*Artifact
 
-	err := c.request("GET", fmt.Sprintf("project/%s/%s/%d/artifacts", account, repo, buildNum), &artifacts, nil, nil)
+	err := c.request("GET", fmt.Sprintf("project/%s/%s/%s/%d/artifacts", vcsType, account, repo, buildNum), &artifacts, nil, nil)
 	if err != nil {
 		return nil, err
 	}
