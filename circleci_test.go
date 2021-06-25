@@ -328,6 +328,25 @@ func TestClient_FollowProject(t *testing.T) {
 	}
 }
 
+func TestClient_UnfollowProject(t *testing.T) {
+	setup()
+	defer teardown()
+	mux.HandleFunc("/project/org-name/repo-name/unfollow", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		fmt.Fprint(w, `{"reponame": "repo-name"}`)
+	})
+
+	project, err := client.UnfollowProject("org-name", "repo-name")
+	if err != nil {
+		t.Errorf("Client.UnfollowProject() returned error: %v", err)
+	}
+
+	want := &Project{Reponame: "repo-name"}
+	if !reflect.DeepEqual(project, want) {
+		t.Errorf("Client.UnfollowProject() returned %+v, want %+v", project, want)
+	}
+}
+
 func TestClient_GetProject(t *testing.T) {
 	setup()
 	defer teardown()
@@ -376,7 +395,7 @@ func TestClient_GetProject_urlDecodeBranches(t *testing.T) {
 	defer teardown()
 	mux.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		// using Fprintf instead Fprint becouse `go vet` complains about a possible intention to use a formatted string
+		// using Fprintf instead Fprint because `go vet` complains about a possible intention to use a formatted string
 		fmt.Fprintf(w, `[
 			{"username": "jszwedko", "reponame": "bar", "branches": {"apiv1%%2E1": {}}}
 		]`)
